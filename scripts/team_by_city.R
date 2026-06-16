@@ -1,6 +1,7 @@
 library(tidyverse)
 
 team_by_city <- 
+# Using kaggle dataset matching teams to cities: https://www.kaggle.com/datasets/mexwell/ncaa-stadiums
   read_csv("./data/processed/stadiums-geocoded-selected-columns.csv") %>%
   mutate(home_team = team)
 
