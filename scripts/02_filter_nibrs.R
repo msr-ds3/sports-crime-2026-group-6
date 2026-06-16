@@ -11,7 +11,7 @@ for (yr in years) {
   crimes <- read_csv(file_in, show_col_types = FALSE) %>%
     filter(
       str_detect(ucr_offense_code, "assault") |
-      str_detect(ucr_offense_code, "vandalism")
+        str_detect(ucr_offense_code, "vandalism")
     ) %>%
     mutate(
       incident_date = as.Date(incident_date),
@@ -20,7 +20,11 @@ for (yr in years) {
         str_detect(ucr_offense_code, "vandalism") ~ "vandalism"
       )
     ) %>%
-    count(ori, incident_date, crime_type)
+    group_by(ori, incident_date, crime_type) %>%
+    summarise(
+      n = n_distinct(unique_incident_id),
+      .groups = "drop"
+    )
 
   write_csv(
     crimes,
@@ -47,4 +51,3 @@ crime_daily_wide <- crime_daily %>%
   )
 
 write_csv(crime_daily_wide, "data/processed/crime_daily.csv")
-

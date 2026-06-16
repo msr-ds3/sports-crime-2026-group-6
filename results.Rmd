@@ -23,13 +23,82 @@ This project replicates and extends Rees and Schnepel's study on whether college
 
 # Descriptive Statistics
 
-## Table 2: Distribution of Games by Day of Week
+## Table 1: Appendix
+
+``` {r appendix-table}
+analysis_data <- read_csv(
+  "data/processed/analysis_data.csv",
+  show_col_types = FALSE
+)
+
+team_agency <- read_csv(
+  "data/processed/team_agency_mapping.csv",
+  show_col_types = FALSE
+)
+
+analysis_data <- analysis_data %>%
+  filter(ori %in% team_agency$ori)
+
+appendix_table1 <- analysis_data %>%
+  mutate(
+    game_type = case_when(
+      home_game == 1 ~ "Home Game",
+      away_game == 1 ~ "Away Game",
+      TRUE ~ "No Game"
+    )
+  ) %>%
+  pivot_longer(
+    cols = c(assault, vandalism),
+    names_to = "crime_type",
+    values_to = "count"
+  ) %>%
+  group_by(crime_type, game_type) %>%
+  summarise(
+    Mean = round(mean(count), 2),
+    SD = round(sd(count), 2),
+    Q25 = quantile(count, 0.25),
+    Median = quantile(count, 0.50),
+    Q75 = quantile(count, 0.75),
+    Q90 = quantile(count, 0.90),
+    .groups = "drop"
+  )
+
+knitr::kable(appendix_table1)
+```
 
 # Descriptive Statistics
 
 ## Table 2: Distribution of Game Days by Day of the Week
 
 ```{r table2}
+table2 <- analysis_data %>%
+  group_by(day_of_week) %>%
+  summarise(
+    Games = sum(home_game + away_game),
+    Observations = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    day_of_week = factor(
+      day_of_week,
+      levels = c("Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri")
+    )
+  ) %>%
+  arrange(day_of_week)
+
+table2 <- bind_rows(
+  table2,
+  tibble(
+    day_of_week = "Total",
+    Games = sum(table2$Games),
+    Observations = sum(table2$Observations)
+  )
+)
+
+knitr::kable(
+  table2,
+  col.names = c("Day of Week", "Games", "Observations")
+)
 ```
 
 # Descriptive Figures
