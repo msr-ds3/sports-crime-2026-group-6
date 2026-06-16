@@ -1,0 +1,53 @@
+---
+title: "Replication of College Football Games and Crime"
+author: "Group 6"
+output: html_document
+---
+
+```{r setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(knitr)
+```
+
+# Introduction
+
+This project replicates and extends Rees and Schnepel's study on whether college football games are associated with increases in crime in host communities. We focus on daily assault and vandalism counts from NIBRS and match them to college football schedules from 2000 to 2005.
+
+# Data
+
+*Placeholder.*
+
+```{r load-data}
+```
+
+# Descriptive Statistics
+
+## Table 2: Distribution of Games by Day of Week
+
+# Descriptive Statistics
+
+## Table 2: Distribution of Game Days by Day of the Week
+
+```{r table2}
+```
+
+# Descriptive Figures
+
+*Placeholder.*
+
+# Per-Team Plots
+
+*Placeholder.*
+
+# Regression Results
+
+*Placeholder.*
+
+# Extensions
+
+*Placeholder.*
+
+# Conclusion
+
+*Placeholder.*
