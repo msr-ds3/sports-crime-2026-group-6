@@ -28,3 +28,6 @@ games_with_city_and_ori <-
   inner_join(games_by_city, cities_and_ori, by = c("city", "state")) %>%
   filter(city %in% str_to_lower(cities)) %>%
   distinct()
+
+
+write_csv(games_with_city_and_ori, "data/processed/games_per_city_with_ori.csv")
