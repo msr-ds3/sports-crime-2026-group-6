@@ -10,7 +10,7 @@ games <-
 games_by_city <- 
   inner_join(team_by_city, games, by = "home_team") %>%
   mutate(city = str_to_lower(city)) %>%
-  select(stadium, city, state, team, game_date, home_win)
+  select(team, city, state, game_date, home_win)
 
 cities_and_ori <-
   read_csv("./data/nibrs/nibrs_batch_header_1991_2024.csv") %>%
@@ -18,7 +18,12 @@ cities_and_ori <-
   mutate(city = city_name, state = str_sub(ori, 1, 2)) %>%
   select(ori, state, city)
 
+cities <- c("Akron", "Ames", "Ann Arbor", "Athens", "Austin", "Blacksburg", "Boise", "Clemson", 
+"Colorado Springs", "Columbia", "Columbus", "Denton", "East Lansing", "Fayetteville", "Huntington",
+"Iowa City", "Jonesboro", "Kalamazoo", "Lawrence", "Logan", "Lubbock", "Morgantown", "Moscow",
+"Mount Pleasant", "Murfreesboro", "Provo")
 
 games_with_city_and_ori <-
   inner_join(games_by_city, cities_and_ori, by = c("city", "state")) %>%
+  filter(city %in% str_to_lower(cities)) %>%
   distinct()
