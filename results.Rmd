@@ -107,7 +107,6 @@ knitr::kable(
 ## Table 2: Distribution of Game Days by Day of the Week
 
 ```{r table2}
-# Replicate table 2
 
 games_by_weekday <-
     read_csv("./data/processed/games_per_city_with_ori.csv") %>%
@@ -133,16 +132,10 @@ num_crime_days <-
     crimes_by_weekday %>%
     summarize(sum = sum(as.numeric(crimes_by_weekday$agency_days)))
 
-
 table2 <-
     left_join(crimes_by_weekday, games_by_weekday, by = "weekday") %>%
     add_row(weekday = "Total", agency_days = num_crime_days$sum, observation_days = num_games$sum) %>%
     replace_na(replace = list(observation_days = 0)) 
-
-knitr::kable(
-  table2,
-  col.names = c("Weekday", "Agency Days", "Observation Days")
-)
 ```
 
 # Descriptive Figures
