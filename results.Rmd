@@ -268,8 +268,113 @@ ggplot(
 
 # Extensions
 
-*Placeholder.*
+## Extension: Home Wins versus Home Losses
+
+```{r win-loss-summary}
+win_loss_summary <- analysis_data %>%
+  filter(home_game == 1) %>%
+  mutate(
+    outcome = ifelse(home_win, "Win", "Loss")
+  ) %>%
+  group_by(outcome) %>%
+  summarise(
+    mean_assault = mean(assault),
+    se_assault = sd(assault) / sqrt(n()),
+    mean_vandalism = mean(vandalism),
+    se_vandalism = sd(vandalism) / sqrt(n()),
+    .groups = "drop"
+  )
+
+knitr::kable(win_loss_summary)
+```
+
+```{r win-loss-assault}
+ggplot(
+  win_loss_summary,
+  aes(x = outcome, y = mean_assault, fill = outcome)
+) +
+  geom_col() +
+  geom_errorbar(
+    aes(
+      ymin = mean_assault - se_assault,
+      ymax = mean_assault + se_assault
+    ),
+    width = 0.2
+  ) +
+  labs(
+    title = "Mean Assaults During Home Games by Outcome",
+    x = "Outcome",
+    y = "Mean Assaults"
+  ) +
+  theme_bw()
+```
+
+```{r win-loss-vandalism}
+ggplot(
+  win_loss_summary,
+  aes(x = outcome, y = mean_vandalism, fill = outcome)
+) +
+  geom_col() +
+  geom_errorbar(
+    aes(
+      ymin = mean_vandalism - se_vandalism,
+      ymax = mean_vandalism + se_vandalism
+    ),
+    width = 0.2
+  ) +
+  labs(
+    title = "Mean Vandalism During Home Games by Outcome",
+    x = "Outcome",
+    y = "Mean Vandalism"
+  ) +
+  theme_bw()
+```
+
+``` {r regression_model}
+assault_win_model <- lm(
+  assault ~ home_win +
+    factor(ori) +
+    factor(month) +
+    factor(year),
+  data = home_only
+)
+
+vandalism_win_model <- lm(
+  vandalism ~ home_win +
+    factor(ori) +
+    factor(month) +
+    factor(year),
+  data = home_only
+)
+```
+
+``` {r results_table}
+win_loss_results <- tibble(
+  Outcome = c("Assault", "Vandalism"),
+  Estimate = c(-0.060, 0.067),
+  P_value = c(0.891, 0.853)
+)
+
+knitr::kable(win_loss_results)
+```
+
+Extension: Home Wins versus Home Losses
+
+We examined whether the outcome of a home game affected crime rates. Restricting the sample to home games, we estimated separate linear regressions of assault and vandalism counts on an
+indicator for whether the home team won, controlling for agency, month, and year fixed effects.
+
+The estimated coefficient on home_win was -0.060 for assaults (p = 0.891) and 0.067 for vandalism (p = 0.853). These effects are very small and statistically insignificant, suggesting 
+that home victories and home losses are associated with similar crime levels. Thus, our results indicate that the presence of a home game itself matters more than whether the team wins or loses.
 
 # Conclusion
 
-*Placeholder.*
+In this project, we replicated key findings from Rees and Schnepel (2010) using NIBRS crime data and college football schedules from 2000–2005. We constructed a panel of 26 college towns 
+and examined how daily assault and vandalism counts varied depending on whether a football game was being played.
+
+Our descriptive statistics and figures showed that both assaults and vandalism tended to be higher on home game days than on days without games, providing evidence consistent with the original study. 
+Per-team plots revealed that the size of these effects varied across communities, with some college towns exhibiting much larger increases in crime than others.
+
+As an extension, we investigated whether the outcome of a home game mattered. Comparing home wins and home losses, we found little evidence that the final result of the game affected assault or vandalism rates. 
+This suggests that the increased crime associated with college football is driven more by the presence of large crowds and game-day activity than by whether the home team wins or loses.
+
+Overall, our results support the idea that college football games are associated with increases in certain types of crime and demonstrate how publicly available data can be used to reproduce and extend findings from academic research.
