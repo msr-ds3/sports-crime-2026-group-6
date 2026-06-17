@@ -30,7 +30,7 @@ away_games <- football_games %>%
     home_win = NA
   )
 
-games_team_day <- bind_rows(home_games, away_games) %>%
+games_team_day <- bind_rows(home_games, away_games) %>% 
   group_by(team, ori, date) %>%
   summarise(
     home_game = max(home_game),
@@ -47,10 +47,12 @@ analysis_data <- team_dates %>%
     vandalism = replace_na(vandalism, 0),
     home_game = replace_na(home_game, 0),
     away_game = replace_na(away_game, 0),
+    no_game = 1 - (home_game + away_game),
     year = year(date),
     month = month(date),
     day_of_week = wday(date, label = TRUE)
-  )
+  ) %>%
+  filter(month >= 8 & month <= 12)
 
 write_csv(analysis_data, "data/processed/analysis_data.csv")
 
