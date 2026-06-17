@@ -270,6 +270,9 @@ ggplot(
 ```
 
 # Regression Results
+```{r offense-count-linear-model}
+lm()
+```
 
 *Placeholder.*
 
