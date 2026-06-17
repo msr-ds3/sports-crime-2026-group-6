@@ -69,6 +69,14 @@ team_agency <- team_agency_candidates %>%
     ori
   )
 
+team_agency <- team_agency %>%
+  mutate(
+    ori = case_when(
+      team == "Ohio State" ~ "OH0250100",
+      TRUE ~ ori
+    )
+  )
+
 write_csv(
   team_agency,
   "data/processed/team_agency_mapping.csv"
