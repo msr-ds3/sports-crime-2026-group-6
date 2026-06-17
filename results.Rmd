@@ -14,13 +14,6 @@ library(knitr)
 
 This project replicates and extends Rees and Schnepel's study on whether college football games are associated with increases in crime in host communities. We focus on daily assault and vandalism counts from NIBRS and match them to college football schedules from 2000 to 2005.
 
-# Data
-
-*Placeholder.*
-
-```{r load-data}
-```
-
 # Descriptive Statistics
 
 ## Table 1: Appendix
@@ -31,7 +24,16 @@ analysis_data <- read_csv(
   show_col_types = FALSE
 )
 
-appendix_long <- analysis_data %>%
+analysis_data_clean <- analysis_data %>%
+  filter(
+    !team %in% c(
+      "Ohio State",
+      "Texas Tech",
+      "South Carolina"
+    )
+  )
+
+appendix_long <- analysis_data_clean %>%
   mutate(
     game_type = case_when(
       home_game == 1 ~ "Home Game",
@@ -71,8 +73,18 @@ appendix_table1 <- bind_rows(
       q50 = "0.50 quantile",
       q75 = "0.75 quantile",
       q90 = "0.90 quantile"
+    ),
+    game_type = factor(
+      game_type,
+      levels = c("All Days", "No Game", "Home Game", "Away Game")
+    ),
+    crime_type = recode(
+      crime_type,
+      assault = "Assaults",
+      vandalism = "Vandalism"
     )
   ) %>%
+  arrange(crime_type, stat, game_type) %>%
   pivot_wider(
     names_from = game_type,
     values_from = value
@@ -86,9 +98,11 @@ appendix_table1 <- bind_rows(
     `Away Game`
   )
 
-knitr::kable(appendix_table1)
+knitr::kable(
+  appendix_table1,
+  col.names = c("", "", "All Days", "No Game", "Home Game", "Away Game")
+)
 ```
-# Descriptive Statistics
 
 ## Table 2: Distribution of Game Days by Day of the Week
 
@@ -97,11 +111,127 @@ knitr::kable(appendix_table1)
 
 # Descriptive Figures
 
-*Placeholder.*
+```{r descriptive-figures}
+saturday_summary <- analysis_data %>%
+  filter(day_of_week == "Sat") %>%
+  mutate(
+    game_type = case_when(
+      home_game == 1 ~ "Home Game",
+      away_game == 1 ~ "Away Game",
+      TRUE ~ "No Game"
+    )
+  ) %>%
+  group_by(game_type) %>%
+  summarise(
+    mean_assault = mean(assault),
+    se_assault = sd(assault) / sqrt(n()),
+    mean_vandalism = mean(vandalism),
+    se_vandalism = sd(vandalism) / sqrt(n()),
+    .groups = "drop"
+  )
+
+knitr::kable(saturday_summary)
+```
+
+```{r assault-figure}
+ggplot(saturday_summary, aes(x = game_type, y = mean_assault)) +
+  geom_col() +
+  geom_errorbar(
+    aes(
+      ymin = mean_assault - se_assault,
+      ymax = mean_assault + se_assault
+    ),
+    width = 0.2
+  ) +
+  labs(
+    title = "Mean Saturday Assaults by Game Type",
+    x = "Game Type",
+    y = "Mean Assaults"
+  )
+```
+
+```{r vandalism-figure}
+ggplot(saturday_summary, aes(x = game_type, y = mean_vandalism)) +
+  geom_col() +
+  geom_errorbar(
+    aes(
+      ymin = mean_vandalism - se_vandalism,
+      ymax = mean_vandalism + se_vandalism
+    ),
+    width = 0.2
+  ) +
+  labs(
+    title = "Mean Saturday Vandalism by Game Type",
+    x = "Game Type",
+    y = "Mean Vandalism"
+  )
+```
 
 # Per-Team Plots
 
-*Placeholder.*
+```{r per-team-summary}
+team_summary_home <- analysis_data %>%
+  filter(day_of_week == "Sat") %>%
+  mutate(
+    game_type = case_when(
+      home_game == 1 ~ "Home Game",
+      home_game == 0 & away_game == 0 ~ "No Game",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(game_type)) %>%
+  group_by(team, game_type) %>%
+  summarise(
+    mean_assault = mean(assault),
+    mean_vandalism = mean(vandalism),
+    .groups = "drop"
+  ) %>%
+  group_by(team) %>%
+  filter(
+    n_distinct(game_type) == 2,
+    max(mean_assault, mean_vandalism) > 0
+  ) %>%
+  ungroup()
+```
+
+```{r per-team-assault}
+ggplot(
+  team_summary_home,
+  aes(x = game_type, y = mean_assault, fill = game_type)
+) +
+  geom_col() +
+  facet_wrap(~team, ncol = 4, scales = "free_y") +
+  labs(
+    title = "Mean Saturday Assaults: Home Game vs No Game",
+    x = "Game Type",
+    y = "Mean Assaults",
+    fill = "Game Type"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    legend.position = "bottom"
+  )
+```
+
+```{r per-team-vandalism}
+ggplot(
+  filter(team_summary_home, team != "South Carolina"),
+  aes(x = game_type, y = mean_vandalism, fill = game_type)
+) +
+  geom_col() +
+  facet_wrap(~team, ncol = 4, scales = "free_y") +
+  labs(
+    title = "Mean Saturday Vandalism: Home Game vs No Game",
+    x = "Game Type",
+    y = "Mean Vandalism"
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    legend.position = "bottom"
+  )
+```
 
 # Regression Results
 
