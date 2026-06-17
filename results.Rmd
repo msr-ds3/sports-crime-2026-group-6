@@ -269,14 +269,14 @@ assault_model <-
 mean_assaults <- mean(analysis_data$assault)
 # Divide home_game coefficient by mean_assaults to get percent increase
 # 5% increase in assaults associated with home game
-# p-value of 0.24447 - fail to reject null hypothesis at .05 significance level
+# p-value of 0.24447 - fail to reject null hypothesis at .01 significance level
 
 vandalism_model <- 
   lm(analysis_data$vandalism ~ as.factor(ori) + as.factor(day_of_week) + month + year + away_game + home_game, data=analysis_data)
 mean_vandalism <- mean(analysis_data$vandalism)
 # Divide home_game coefficient by mean_vandalism to get percent increase
 # 17% increase in vandalism associated with home game
-# p-value of 4.18e-05 - reject null hypothesis at .05 significance level
+# p-value of 4.18e-05 - reject null hypothesis at .01 significance level
 ```
 
 *Placeholder.*
