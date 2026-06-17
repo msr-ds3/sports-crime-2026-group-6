@@ -559,108 +559,108 @@ knitr::kable(
 </div>
 <div id="table-2-distribution-of-game-days-by-day-of-the-week" class="section level2">
 <h2>Table 2: Distribution of Game Days by Day of the Week</h2>
-<pre class="r"><code>games_by_weekday &lt;-
-    read_csv(&quot;./data/processed/games_per_city_with_ori.csv&quot;) %&gt;%
-    mutate(weekday = wday(game_date, week_start = getOption(&quot;lubridate.week.start&quot;, 7), label = TRUE)) %&gt;%
-    group_by(weekday) %&gt;%
-    summarize(observation_days = n())</code></pre>
-<pre><code>## Rows: 1136 Columns: 5
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (4): team, city, state, ori
-## date (1): game_date
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>num_games &lt;- 
-    games_by_weekday %&gt;%
-    summarize(sum = sum(as.numeric(games_by_weekday$observation_days)))
+<pre class="r"><code># games_by_weekday &lt;-
+#     read_csv(&quot;./data/processed/games_per_city_with_ori.csv&quot;) %&gt;%
+#     mutate(weekday = wday(game_date, week_start = getOption(&quot;lubridate.week.start&quot;, 7), label = TRUE)) %&gt;%
+#     group_by(weekday) %&gt;%
+#     summarize(observation_days = n())
 
-game_location_oris &lt;-
-    read_csv(&quot;./data/processed/city_to_ori.csv&quot;) </code></pre>
-<pre><code>## Rows: 67 Columns: 3
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): city, state, ori
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>crimes_by_weekday &lt;-
-    read_csv(&quot;./data/processed/crime_daily.csv&quot;) %&gt;%
-    filter(ori %in% game_location_oris$ori, year(incident_date) &gt;= 2000) %&gt;%
-    mutate(weekday = wday(incident_date, week_start = getOption(&quot;lubridate.week.start&quot;, 7), label = TRUE)) %&gt;%
-    group_by(weekday) %&gt;%
-    summarize(agency_days = n())</code></pre>
-<pre><code>## Rows: 2504684 Columns: 4
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (1): ori
-## dbl  (2): vandalism, assault
-## date (1): incident_date
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>num_crime_days &lt;- 
-    crimes_by_weekday %&gt;%
-    summarize(sum = sum(as.numeric(crimes_by_weekday$agency_days)))
+# num_games &lt;- 
+#     games_by_weekday %&gt;%
+#     summarize(sum = sum(as.numeric(games_by_weekday$observation_days)))
 
-table2 &lt;-
-    left_join(crimes_by_weekday, games_by_weekday, by = &quot;weekday&quot;) %&gt;%
-    add_row(weekday = &quot;Total&quot;, agency_days = num_crime_days$sum, observation_days = num_games$sum) %&gt;%
-    replace_na(replace = list(observation_days = 0)) 
+# game_location_oris &lt;-
+#     read_csv(&quot;./data/processed/city_to_ori.csv&quot;) 
+
+# crimes_by_weekday &lt;-
+#     read_csv(&quot;./data/processed/crime_daily.csv&quot;) %&gt;%
+#     filter(ori %in% game_location_oris$ori, year(incident_date) &gt;= 2000) %&gt;%
+#     mutate(weekday = wday(incident_date, week_start = getOption(&quot;lubridate.week.start&quot;, 7), label = TRUE)) %&gt;%
+#     group_by(weekday) %&gt;%
+#     summarize(agency_days = n())
+
+# num_crime_days &lt;- 
+#     crimes_by_weekday %&gt;%
+#     summarize(sum = sum(as.numeric(crimes_by_weekday$agency_days)))
+
+# table2 &lt;-
+#     left_join(crimes_by_weekday, games_by_weekday, by = &quot;weekday&quot;) %&gt;%
+#     add_row(weekday = &quot;Total&quot;, agency_days = num_crime_days$sum, observation_days = num_games$sum) %&gt;%
+#     replace_na(replace = list(observation_days = 0)) 
   
+version2 &lt;- 
+  analysis_data %&gt;%
+  mutate(game = 1-no_game) %&gt;%
+  group_by(game, day_of_week) %&gt;%
+  summarize(count = n()) %&gt;%
+  pivot_wider(names_from = game, values_from = count) %&gt;%
+  mutate(observation_days = `1`) %&gt;%
+  replace_na(replace = list(observation_days = 0)) %&gt;%
+  mutate(agency_days = `0` + observation_days) %&gt;%
+  select(day_of_week, observation_days, agency_days) </code></pre>
+<pre><code>## `summarise()` has regrouped the output.
+## ℹ Summaries were computed grouped by game and day_of_week.
+## ℹ Output is grouped by game.
+## ℹ Use `summarise(.groups = &quot;drop_last&quot;)` to silence this message.
+## ℹ Use `summarise(.by = c(game, day_of_week))` for per-operation grouping
+##   (`?dplyr::dplyr_by`) instead.</code></pre>
+<pre class="r"><code>version2_with_totals &lt;- 
+  version2 %&gt;%
+  add_row(day_of_week = &quot;Total&quot;, agency_days = sum(version2$agency_days), observation_days = sum(version2$observation_days))
+
+
 knitr::kable(
-  table2,
-  col.names = c(&quot;Weekday&quot;, &quot;Agency Days&quot;, &quot;Observation Days&quot;)
+  version2_with_totals,
+  col.names = c(&quot;Day of Week&quot;, &quot;Games&quot;, &quot;Observations&quot;)
 )</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th align="left">Weekday</th>
-<th align="right">Agency Days</th>
-<th align="right">Observation Days</th>
+<th align="left">Day of Week</th>
+<th align="right">Games</th>
+<th align="right">Observations</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Sun</td>
-<td align="right">8518</td>
-<td align="right">126</td>
+<td align="left">Fri</td>
+<td align="right">53</td>
+<td align="right">3432</td>
 </tr>
 <tr class="even">
 <td align="left">Mon</td>
-<td align="right">8198</td>
 <td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Tue</td>
-<td align="right">8075</td>
-<td align="right">4</td>
-</tr>
-<tr class="even">
-<td align="left">Wed</td>
-<td align="right">8174</td>
-<td align="right">5</td>
-</tr>
-<tr class="odd">
-<td align="left">Thu</td>
-<td align="right">8212</td>
-<td align="right">37</td>
-</tr>
-<tr class="even">
-<td align="left">Fri</td>
-<td align="right">8569</td>
-<td align="right">31</td>
+<td align="right">3406</td>
 </tr>
 <tr class="odd">
 <td align="left">Sat</td>
-<td align="right">8759</td>
-<td align="right">933</td>
+<td align="right">1474</td>
+<td align="right">3406</td>
+</tr>
+<tr class="even">
+<td align="left">Sun</td>
+<td align="right">192</td>
+<td align="right">3406</td>
+</tr>
+<tr class="odd">
+<td align="left">Thu</td>
+<td align="right">58</td>
+<td align="right">3406</td>
+</tr>
+<tr class="even">
+<td align="left">Tue</td>
+<td align="right">2</td>
+<td align="right">3406</td>
+</tr>
+<tr class="odd">
+<td align="left">Wed</td>
+<td align="right">11</td>
+<td align="right">3406</td>
 </tr>
 <tr class="even">
 <td align="left">Total</td>
-<td align="right">58505</td>
-<td align="right">1136</td>
+<td align="right">1790</td>
+<td align="right">23868</td>
 </tr>
 </tbody>
 </table>
@@ -816,7 +816,6 @@ knitr::kable(saturday_summary)</code></pre>
 <h1>Regression Results</h1>
 <pre class="r"><code>assault_model &lt;- 
   lm(analysis_data$assault ~ as.factor(ori) + as.factor(day_of_week) + month + year + away_game + home_game, data=analysis_data)
-mean_assaults &lt;- mean(analysis_data$assault)
 
 summary(assault_model)</code></pre>
 <pre><code>## 
@@ -872,13 +871,14 @@ summary(assault_model)</code></pre>
 ## Residual standard error: 4.837 on 23832 degrees of freedom
 ## Multiple R-squared:  0.5276, Adjusted R-squared:  0.5269 
 ## F-statistic: 760.4 on 35 and 23832 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>mean(analysis_data$assault)</code></pre>
+<pre><code>## [1] 3.588612</code></pre>
 <pre class="r"><code># Divide home_game coefficient by mean_assaults to get percent increase
-# 5% increase in assaults associated with home game
-# p-value of 0.24447 - fail to reject null hypothesis at .01 significance level
+# 6% increase in assaults associated with home game
+# p-value of 0.211945 - fail to reject null hypothesis at .01 significance level
 
 vandalism_model &lt;- 
   lm(analysis_data$vandalism ~ as.factor(ori) + as.factor(day_of_week) + month + year + away_game + home_game, data=analysis_data)
-mean_vandalism &lt;- mean(analysis_data$vandalism)
 
 summary(vandalism_model)</code></pre>
 <pre><code>## 
@@ -934,9 +934,11 @@ summary(vandalism_model)</code></pre>
 ## Residual standard error: 3.973 on 23832 degrees of freedom
 ## Multiple R-squared:  0.5385, Adjusted R-squared:  0.5378 
 ## F-statistic: 794.6 on 35 and 23832 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>mean(analysis_data$vandalism)</code></pre>
+<pre><code>## [1] 3.262276</code></pre>
 <pre class="r"><code># Divide home_game coefficient by mean_vandalism to get percent increase
-# 17% increase in vandalism associated with home game
-# p-value of 4.18e-05 - reject null hypothesis at .01 significance level</code></pre>
+# 18% increase in vandalism associated with home game
+# p-value of 0.000105 - reject null hypothesis at .01 significance level</code></pre>
 </div>
 <div id="extensions" class="section level1">
 <h1>Extensions</h1>
