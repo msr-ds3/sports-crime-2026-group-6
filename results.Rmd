@@ -279,8 +279,6 @@ mean_vandalism <- mean(analysis_data$vandalism)
 # p-value of 4.18e-05 - reject null hypothesis at .05 significance level
 ```
 
-*Placeholder.*
-
 # Extensions
 
 ## Extension: Home Wins versus Home Losses
