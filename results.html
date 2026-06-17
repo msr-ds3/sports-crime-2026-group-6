@@ -817,14 +817,124 @@ knitr::kable(saturday_summary)</code></pre>
 <pre class="r"><code>assault_model &lt;- 
   lm(analysis_data$assault ~ as.factor(ori) + as.factor(day_of_week) + month + year + away_game + home_game, data=analysis_data)
 mean_assaults &lt;- mean(analysis_data$assault)
-# Divide home_game coefficient by mean_assaults to get percent increase
+
+summary(assault_model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = analysis_data$assault ~ as.factor(ori) + as.factor(day_of_week) + 
+##     month + year + away_game + home_game, data = analysis_data)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -19.980  -1.051  -0.134   0.890  50.027 
+## 
+## Coefficients:
+##                            Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)               123.58937   36.71456   3.366 0.000763 ***
+## as.factor(ori)AR0720100    -0.46021    0.22579  -2.038 0.041539 *  
+## as.factor(ori)CO0210100     8.02694    0.22578  35.551  &lt; 2e-16 ***
+## as.factor(ori)IA0520200    -0.16042    0.22578  -0.710 0.477403    
+## as.factor(ori)IA0850100    -0.92300    0.22579  -4.088 4.37e-05 ***
+## as.factor(ori)ID0010100     5.59422    0.22578  24.777  &lt; 2e-16 ***
+## as.factor(ori)ID0290500    -1.31883    0.22579  -5.841 5.25e-09 ***
+## as.factor(ori)KS0230100     0.61967    0.22579   2.744 0.006065 ** 
+## as.factor(ori)MI3336400    -0.57551    0.22579  -2.549 0.010812 *  
+## as.factor(ori)MI3759900    -0.85287    0.22578  -3.777 0.000159 ***
+## as.factor(ori)MI3949900     5.35319    0.22578  23.710  &lt; 2e-16 ***
+## as.factor(ori)MI8121800    -0.50778    0.22579  -2.249 0.024525 *  
+## as.factor(ori)OH0050100    -1.41909    0.22578  -6.285 3.33e-10 ***
+## as.factor(ori)OH0250100    -1.59850    0.22579  -7.080 1.49e-12 ***
+## as.factor(ori)OH0770100    17.16134    0.22578  76.009  &lt; 2e-16 ***
+## as.factor(ori)SC0390200    -1.38360    0.22579  -6.128 9.04e-10 ***
+## as.factor(ori)SC0400100     4.94750    0.22579  21.912  &lt; 2e-16 ***
+## as.factor(ori)TN0750100     3.84235    0.22578  17.018  &lt; 2e-16 ***
+## as.factor(ori)TX0610200     0.73783    0.22578   3.268 0.001085 ** 
+## as.factor(ori)TX1520200    -1.59852    0.22578  -7.080 1.48e-12 ***
+## as.factor(ori)TX2270100    17.28711    0.22578  76.565  &lt; 2e-16 ***
+## as.factor(ori)UT0030100    -1.07565    0.22578  -4.764 1.91e-06 ***
+## as.factor(ori)UT0250600     0.46677    0.22578   2.067 0.038711 *  
+## as.factor(ori)VA0600100    -0.72633    0.22579  -3.217 0.001298 ** 
+## as.factor(ori)WV0060200     1.12195    0.22578   4.969 6.77e-07 ***
+## as.factor(ori)WV0310100    -0.80729    0.22578  -3.575 0.000350 ***
+## as.factor(day_of_week)Mon  -0.43566    0.11702  -3.723 0.000197 ***
+## as.factor(day_of_week)Sat   0.51646    0.13141   3.930 8.51e-05 ***
+## as.factor(day_of_week)Sun   0.47401    0.11714   4.046 5.22e-05 ***
+## as.factor(day_of_week)Thu  -0.33619    0.11699  -2.874 0.004063 ** 
+## as.factor(day_of_week)Tue  -0.39051    0.11701  -3.337 0.000847 ***
+## as.factor(day_of_week)Wed  -0.43257    0.11701  -3.697 0.000219 ***
+## month                      -0.17686    0.02207  -8.012 1.18e-15 ***
+## year                       -0.06000    0.01833  -3.273 0.001067 ** 
+## away_game                   0.17304    0.18597   0.930 0.352148    
+## home_game                   0.22595    0.18101   1.248 0.211945    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 4.837 on 23832 degrees of freedom
+## Multiple R-squared:  0.5276, Adjusted R-squared:  0.5269 
+## F-statistic: 760.4 on 35 and 23832 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code># Divide home_game coefficient by mean_assaults to get percent increase
 # 5% increase in assaults associated with home game
 # p-value of 0.24447 - fail to reject null hypothesis at .01 significance level
 
 vandalism_model &lt;- 
   lm(analysis_data$vandalism ~ as.factor(ori) + as.factor(day_of_week) + month + year + away_game + home_game, data=analysis_data)
 mean_vandalism &lt;- mean(analysis_data$vandalism)
-# Divide home_game coefficient by mean_vandalism to get percent increase
+
+summary(vandalism_model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = analysis_data$vandalism ~ as.factor(ori) + as.factor(day_of_week) + 
+##     month + year + away_game + home_game, data = analysis_data)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -15.113  -1.265  -0.230   0.857  68.474 
+## 
+## Coefficients:
+##                           Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)               42.88358   30.15546   1.422 0.155015    
+## as.factor(ori)AR0720100   -0.43516    0.18545  -2.346 0.018962 *  
+## as.factor(ori)CO0210100   14.78560    0.18545  79.729  &lt; 2e-16 ***
+## as.factor(ori)IA0520200    0.88255    0.18545   4.759 1.96e-06 ***
+## as.factor(ori)IA0850100    0.54359    0.18545   2.931 0.003379 ** 
+## as.factor(ori)ID0010100    5.17068    0.18545  27.883  &lt; 2e-16 ***
+## as.factor(ori)ID0290500   -0.74076    0.18545  -3.994 6.50e-05 ***
+## as.factor(ori)KS0230100    2.00047    0.18545  10.787  &lt; 2e-16 ***
+## as.factor(ori)MI3336400    0.22551    0.18545   1.216 0.223988    
+## as.factor(ori)MI3759900   -0.40078    0.18545  -2.161 0.030693 *  
+## as.factor(ori)MI3949900    2.79475    0.18544  15.071  &lt; 2e-16 ***
+## as.factor(ori)MI8121800   -0.25661    0.18545  -1.384 0.166456    
+## as.factor(ori)OH0050100   -1.24538    0.18544  -6.716 1.91e-11 ***
+## as.factor(ori)OH0250100   -1.49380    0.18545  -8.055 8.32e-16 ***
+## as.factor(ori)OH0770100   12.21495    0.18545  65.868  &lt; 2e-16 ***
+## as.factor(ori)SC0390200   -1.05509    0.18545  -5.689 1.29e-08 ***
+## as.factor(ori)SC0400100   -1.49317    0.18545  -8.052 8.55e-16 ***
+## as.factor(ori)TN0750100    1.71758    0.18544   9.262  &lt; 2e-16 ***
+## as.factor(ori)TX0610200    0.62844    0.18545   3.389 0.000703 ***
+## as.factor(ori)TX1520200   -1.49372    0.18545  -8.055 8.34e-16 ***
+## as.factor(ori)TX2270100   11.29169    0.18545  60.889  &lt; 2e-16 ***
+## as.factor(ori)UT0030100   -0.58662    0.18545  -3.163 0.001562 ** 
+## as.factor(ori)UT0250600    0.98331    0.18545   5.302 1.15e-07 ***
+## as.factor(ori)VA0600100    0.03798    0.18545   0.205 0.837736    
+## as.factor(ori)WV0060200    1.33751    0.18544   7.212 5.66e-13 ***
+## as.factor(ori)WV0310100    0.59215    0.18545   3.193 0.001409 ** 
+## as.factor(day_of_week)Mon -0.78057    0.09611  -8.122 4.82e-16 ***
+## as.factor(day_of_week)Sat  0.15215    0.10793   1.410 0.158659    
+## as.factor(day_of_week)Sun -0.30766    0.09622  -3.198 0.001388 ** 
+## as.factor(day_of_week)Thu -0.86303    0.09609  -8.981  &lt; 2e-16 ***
+## as.factor(day_of_week)Tue -0.96410    0.09611 -10.031  &lt; 2e-16 ***
+## as.factor(day_of_week)Wed -0.89208    0.09610  -9.283  &lt; 2e-16 ***
+## month                     -0.14298    0.01813  -7.886 3.25e-15 ***
+## year                      -0.01971    0.01506  -1.309 0.190498    
+## away_game                  0.41306    0.15275   2.704 0.006852 ** 
+## home_game                  0.57673    0.14867   3.879 0.000105 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 3.973 on 23832 degrees of freedom
+## Multiple R-squared:  0.5385, Adjusted R-squared:  0.5378 
+## F-statistic: 794.6 on 35 and 23832 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code># Divide home_game coefficient by mean_vandalism to get percent increase
 # 17% increase in vandalism associated with home game
 # p-value of 4.18e-05 - reject null hypothesis at .01 significance level</code></pre>
 </div>
