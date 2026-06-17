@@ -559,60 +559,7 @@ knitr::kable(
 </div>
 <div id="table-2-distribution-of-game-days-by-day-of-the-week" class="section level2">
 <h2>Table 2: Distribution of Game Days by Day of the Week</h2>
-<pre class="r"><code>crime_daily &lt;- read_csv(&quot;data/processed/crime_daily.csv&quot;, show_col_types = FALSE)
-football_games &lt;- read_csv(&quot;data/processed/football_games.csv&quot;, show_col_types = FALSE)
-team_agency &lt;- read_csv(&quot;data/processed/team_agency_mapping.csv&quot;, show_col_types = FALSE)
-
-team_dates &lt;- team_agency %&gt;%
-  crossing(date = seq(as.Date(&quot;2000-01-01&quot;), as.Date(&quot;2005-12-31&quot;), by = &quot;day&quot;))
-
-home_games &lt;- football_games %&gt;%
-  inner_join(team_agency, by = c(&quot;home_team&quot; = &quot;team&quot;)) %&gt;%
-  transmute(
-    team = home_team,
-    ori,
-    date = game_date,
-    home_game = 1,
-    away_game = 0,
-    home_win = home_win
-  )
-
-away_games &lt;- football_games %&gt;%
-  inner_join(team_agency, by = c(&quot;away_team&quot; = &quot;team&quot;)) %&gt;%
-  transmute(
-    team = away_team,
-    ori,
-    date = game_date,
-    home_game = 0,
-    away_game = 1,
-    home_win = NA
-  )
-
-games_team_day &lt;- bind_rows(home_games, away_games) %&gt;%
-  group_by(team, ori, date) %&gt;%
-  summarise(
-    home_game = max(home_game),
-    away_game = max(away_game),
-    home_win = ifelse(any(home_game == 1), home_win[home_game == 1][1], NA),
-    .groups = &quot;drop&quot;
-  )
-
-analysis_data &lt;- team_dates %&gt;%
-  left_join(crime_daily, by = c(&quot;ori&quot;, &quot;date&quot; = &quot;incident_date&quot;)) %&gt;%
-  left_join(games_team_day, by = c(&quot;team&quot;, &quot;ori&quot;, &quot;date&quot;)) %&gt;%
-  mutate(
-    assault = replace_na(assault, 0),
-    vandalism = replace_na(vandalism, 0),
-    home_game = replace_na(home_game, 0),
-    away_game = replace_na(away_game, 0),
-    year = year(date),
-    month = month(date),
-    day_of_week = wday(date, label = TRUE)
-  )
-
-write_csv(analysis_data, &quot;data/processed/analysis_data.csv&quot;)
-
-# Replicate table 2
+<pre class="r"><code># Replicate table 2
 
 games_by_weekday &lt;-
     read_csv(&quot;./data/processed/games_per_city_with_ori.csv&quot;) %&gt;%
