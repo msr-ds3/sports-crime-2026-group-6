@@ -107,7 +107,7 @@ knitr::kable(
 ## Table 2: Distribution of Game Days by Day of the Week
 
 ```{r table2}
-version2 <- 
+table2 <- 
   analysis_data %>%
   mutate(game = 1-no_game) %>%
   group_by(game, day_of_week) %>%
@@ -118,13 +118,13 @@ version2 <-
   mutate(agency_days = `0` + observation_days) %>%
   select(day_of_week, observation_days, agency_days) 
 
-version2_with_totals <- 
-  version2 %>%
+table2_with_totals <- 
+  table2 %>%
   add_row(day_of_week = "Total", agency_days = sum(version2$agency_days), observation_days = sum(version2$observation_days))
 
 
 knitr::kable(
-  version2_with_totals,
+  table2_with_totals,
   col.names = c("Day of Week", "Games", "Observations")
 )
 ```
