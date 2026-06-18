@@ -241,14 +241,7 @@ team_summary <- analysis_data %>%
   summarise(
     mean_assault = mean(assault),
     mean_vandalism = mean(vandalism),
-    .groups = "drop"
-  ) %>%
-  group_by(team) %>%
-  filter(
-    n_distinct(game_type) == 3,
-    max(mean_assault, mean_vandalism) > 0
-  ) %>%
-  ungroup()
+    .groups = "drop")
 ```
 
 ```{r per-team-assault}
@@ -301,8 +294,6 @@ summary(assault_model)
 mean(analysis_data$assault)
 
 # Divide home_game coefficient by mean_assaults to get percent increase
-# 6% increase in assaults associated with home game
-# p-value of 0.211945 - fail to reject null hypothesis at .01 significance level
 
 vandalism_model <- 
   lm(analysis_data$vandalism ~ as.factor(ori) + as.factor(day_of_week) + month + year + away_game + home_game, data=analysis_data)
@@ -312,8 +303,6 @@ summary(vandalism_model)
 mean(analysis_data$vandalism)
 
 # Divide home_game coefficient by mean_vandalism to get percent increase
-# 18% increase in vandalism associated with home game
-# p-value of 0.000105 - reject null hypothesis at .01 significance level
 ```
 
 # Extensions
