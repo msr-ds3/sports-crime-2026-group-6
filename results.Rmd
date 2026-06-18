@@ -107,36 +107,6 @@ knitr::kable(
 ## Table 2: Distribution of Game Days by Day of the Week
 
 ```{r table2}
-
-# games_by_weekday <-
-#     read_csv("./data/processed/games_per_city_with_ori.csv") %>%
-#     mutate(weekday = wday(game_date, week_start = getOption("lubridate.week.start", 7), label = TRUE)) %>%
-#     group_by(weekday) %>%
-#     summarize(observation_days = n())
-
-# num_games <- 
-#     games_by_weekday %>%
-#     summarize(sum = sum(as.numeric(games_by_weekday$observation_days)))
-
-# game_location_oris <-
-#     read_csv("./data/processed/city_to_ori.csv") 
-
-# crimes_by_weekday <-
-#     read_csv("./data/processed/crime_daily.csv") %>%
-#     filter(ori %in% game_location_oris$ori, year(incident_date) >= 2000) %>%
-#     mutate(weekday = wday(incident_date, week_start = getOption("lubridate.week.start", 7), label = TRUE)) %>%
-#     group_by(weekday) %>%
-#     summarize(agency_days = n())
-
-# num_crime_days <- 
-#     crimes_by_weekday %>%
-#     summarize(sum = sum(as.numeric(crimes_by_weekday$agency_days)))
-
-# table2 <-
-#     left_join(crimes_by_weekday, games_by_weekday, by = "weekday") %>%
-#     add_row(weekday = "Total", agency_days = num_crime_days$sum, observation_days = num_games$sum) %>%
-#     replace_na(replace = list(observation_days = 0)) 
-  
 version2 <- 
   analysis_data %>%
   mutate(game = 1-no_game) %>%
@@ -184,52 +154,89 @@ knitr::kable(saturday_summary)
 ```
 
 ```{r assault-figure}
-ggplot(saturday_summary, aes(x = game_type, y = mean_assault)) +
-  geom_col() +
+ggplot(
+  saturday_summary,
+  aes(x = game_type, y = mean_assault, fill = game_type)
+) +
+  geom_col(width = 0.7) +
   geom_errorbar(
     aes(
       ymin = mean_assault - se_assault,
       ymax = mean_assault + se_assault
     ),
-    width = 0.2
+    width = 0.15
+  ) +
+  scale_fill_manual(
+    values = c(
+      "No Game" = "gray70",
+      "Away Game" = "#4C78A8",
+      "Home Game" = "#E45756"
+    )
   ) +
   labs(
     title = "Mean Saturday Assaults by Game Type",
-    x = "Game Type",
-    y = "Mean Assaults"
+    x = "",
+    y = "Mean Assaults",
+    fill = "Game Type"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "bottom",
+    axis.text.x = element_text(size = 11)
   )
 ```
 
 ```{r vandalism-figure}
-ggplot(saturday_summary, aes(x = game_type, y = mean_vandalism)) +
-  geom_col() +
+ggplot(
+  saturday_summary,
+  aes(x = game_type, y = mean_vandalism, fill = game_type)
+) +
+  geom_col(width = 0.7) +
   geom_errorbar(
     aes(
       ymin = mean_vandalism - se_vandalism,
       ymax = mean_vandalism + se_vandalism
     ),
-    width = 0.2
+    width = 0.15
+  ) +
+  scale_fill_manual(
+    values = c(
+      "No Game" = "gray70",
+      "Away Game" = "#4C78A8",
+      "Home Game" = "#E45756"
+    )
   ) +
   labs(
     title = "Mean Saturday Vandalism by Game Type",
-    x = "Game Type",
-    y = "Mean Vandalism"
+    x = "",
+    y = "Mean Vandalism",
+    fill = "Game Type"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "bottom",
+    axis.text.x = element_text(size = 11)
   )
 ```
 
 # Per-Team Plots
 
 ```{r per-team-summary}
-team_summary_home <- analysis_data %>%
+team_summary <- analysis_data %>%
   filter(day_of_week == "Sat") %>%
   mutate(
     game_type = case_when(
       home_game == 1 ~ "Home Game",
-      home_game == 0 & away_game == 0 ~ "No Game",
-      TRUE ~ NA_character_
+      away_game == 1 ~ "Away Game",
+      TRUE ~ "No Game"
+    ),
+    game_type = factor(
+      game_type,
+      levels = c("No Game", "Away Game", "Home Game")
     )
   ) %>%
-  filter(!is.na(game_type)) %>%
   group_by(team, game_type) %>%
   summarise(
     mean_assault = mean(assault),
@@ -238,7 +245,7 @@ team_summary_home <- analysis_data %>%
   ) %>%
   group_by(team) %>%
   filter(
-    n_distinct(game_type) == 2,
+    n_distinct(game_type) == 3,
     max(mean_assault, mean_vandalism) > 0
   ) %>%
   ungroup()
@@ -246,13 +253,13 @@ team_summary_home <- analysis_data %>%
 
 ```{r per-team-assault}
 ggplot(
-  team_summary_home,
+  team_summary,
   aes(x = game_type, y = mean_assault, fill = game_type)
 ) +
   geom_col() +
   facet_wrap(~team, ncol = 4, scales = "free_y") +
   labs(
-    title = "Mean Saturday Assaults: Home Game vs No Game",
+    title = "Mean Saturday Assaults by Team",
     x = "Game Type",
     y = "Mean Assaults",
     fill = "Game Type"
@@ -266,15 +273,16 @@ ggplot(
 
 ```{r per-team-vandalism}
 ggplot(
-  filter(team_summary_home, team != "South Carolina"),
+  filter(team_summary, team != "South Carolina"),
   aes(x = game_type, y = mean_vandalism, fill = game_type)
 ) +
   geom_col() +
   facet_wrap(~team, ncol = 4, scales = "free_y") +
   labs(
-    title = "Mean Saturday Vandalism: Home Game vs No Game",
+    title = "Mean Saturday Vandalism by Team",
     x = "Game Type",
-    y = "Mean Vandalism"
+    y = "Mean Vandalism",
+    fill = "Game Type"
   ) +
   theme_bw() +
   theme(
@@ -335,20 +343,33 @@ ggplot(
   win_loss_summary,
   aes(x = outcome, y = mean_assault, fill = outcome)
 ) +
-  geom_col() +
+  geom_col(width = 0.65) +
   geom_errorbar(
     aes(
       ymin = mean_assault - se_assault,
       ymax = mean_assault + se_assault
     ),
-    width = 0.2
+    width = 0.15,
+    linewidth = 0.8
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Win" = "#59A14F",
+      "Loss" = "#E15759"
+    )
   ) +
   labs(
     title = "Mean Assaults During Home Games by Outcome",
-    x = "Outcome",
-    y = "Mean Assaults"
+    x = "",
+    y = "Mean Assaults",
+    fill = "Outcome"
   ) +
-  theme_bw()
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "bottom",
+    axis.text = element_text(size = 11)
+  )
 ```
 
 ```{r win-loss-vandalism}
@@ -356,20 +377,33 @@ ggplot(
   win_loss_summary,
   aes(x = outcome, y = mean_vandalism, fill = outcome)
 ) +
-  geom_col() +
+  geom_col(width = 0.65) +
   geom_errorbar(
     aes(
       ymin = mean_vandalism - se_vandalism,
       ymax = mean_vandalism + se_vandalism
     ),
-    width = 0.2
+    width = 0.15,
+    linewidth = 0.8
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Win" = "#59A14F",
+      "Loss" = "#E15759"
+    )
   ) +
   labs(
     title = "Mean Vandalism During Home Games by Outcome",
-    x = "Outcome",
-    y = "Mean Vandalism"
+    x = "",
+    y = "Mean Vandalism",
+    fill = "Outcome"
   ) +
-  theme_bw()
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "bottom",
+    axis.text = element_text(size = 11)
+  )
 ```
 
 ``` {r regression-model}
