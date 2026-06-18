@@ -50,32 +50,23 @@ team_agency_candidates <- team_city %>%
   left_join(
     batch_small,
     by = c("city_name", "state_abbreviation")
-  )
+  ) %>% distinct()
 
-write_csv(
-  team_agency_candidates,
-  "data/processed/team_agency_candidates.csv"
-)
+# write_csv(
+#   team_agency_candidates,
+#   "data/processed/team_agency_candidates.csv"
+# )
 
 team_agency <- team_agency_candidates %>%
   filter(agency_indicator == "city") %>%
   group_by(team) %>%
-  slice(1) %>%
   ungroup() %>%
   select(
     team,
     city_name,
     state_abbreviation,
     ori
-  )
-
-team_agency <- team_agency %>%
-  mutate(
-    ori = case_when(
-      team == "Ohio State" ~ "OH0250100",
-      TRUE ~ ori
-    )
-  )
+  ) %>% distinct()
 
 write_csv(
   team_agency,

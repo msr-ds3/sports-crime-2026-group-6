@@ -39,8 +39,24 @@ games_team_day <- bind_rows(home_games, away_games) %>%
     .groups = "drop"
   )
 
-analysis_data <- team_dates %>%
-  left_join(crime_daily, by = c("ori", "date" = "incident_date")) %>%
+years <- 2000:2005
+dates_2000 <- seq.Date(as.Date("2000/08/20"), as.Date("2000/12/10"), by = "day")
+dates_2001 <- seq.Date(as.Date("2001/08/20"), as.Date("2001/12/10"), by = "day")
+dates_2002 <- seq.Date(as.Date("2002/08/20"), as.Date("2002/12/10"), by = "day")
+dates_2003 <- seq.Date(as.Date("2003/08/20"), as.Date("2003/12/10"), by = "day")
+dates_2004 <- seq.Date(as.Date("2004/08/20"), as.Date("2004/12/10"), by = "day")
+dates_2005 <- seq.Date(as.Date("2005/08/20"), as.Date("2005/12/10"), by = "day")
+all_dates <- c(dates_2000, dates_2001, dates_2002, dates_2003, dates_2004, dates_2005)
+
+all_dates_df <- data.frame(all_dates)
+oris <- select(team_agency, ori)
+all_days_and_oris <- cross_join(oris, all_dates_df)
+all_days_with_crimes <- left_join(all_days_and_oris, crime_daily, by = c("ori", "all_dates" = "incident_date")) %>% 
+  arrange(ori) %>%
+  replace_na(replace = list(vandalism = 0, assault = 0))
+
+analysis_data <- all_days %>%
+  left_join(games_team_day, by = c("ori", "date" = "incident_date")) %>%
   left_join(games_team_day, by = c("team", "ori", "date")) %>%
   mutate(
     assault = replace_na(assault, 0),
@@ -51,8 +67,6 @@ analysis_data <- team_dates %>%
     year = year(date),
     month = month(date),
     day_of_week = wday(date, label = TRUE)
-  ) %>%
-  filter(month >= 8 & month <= 12)
+  ) 
 
-write_csv(analysis_data, "data/processed/analysis_data.csv")
-
+  write_csv(analysis_data, "data/processed/analysis_data.csv")

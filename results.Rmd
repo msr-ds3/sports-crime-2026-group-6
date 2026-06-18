@@ -120,7 +120,7 @@ table2 <-
 
 table2_with_totals <- 
   table2 %>%
-  add_row(day_of_week = "Total", agency_days = sum(version2$agency_days), observation_days = sum(version2$observation_days))
+  add_row(day_of_week = "Total", agency_days = sum(table2$agency_days), observation_days = sum(table2$observation_days))
 
 
 knitr::kable(
