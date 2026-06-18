@@ -1,43 +1,104 @@
-# Replication of "College Football Games and Crime" (Rees & Schnepel, 2009)
+# Replication of College Football Games and Crime
 
-This week covers replications and extensions of [this paper](https://jvlone.com/sportsdocs/footballGamesCrime2009.pdf) by Daniel Rees and Kevin Schnepel (Journal of Sports Economics, 2009). The paper examines whether college football games lead to increases in crime in the host community. Using daily offense data from 26 police agencies in college towns matched to game schedules, they find that on average home games are associated with a 9% increase in assaults and an 18% increase in vandalism, but that away games have no effect.
+This project replicates and extends Rees and Schnepel’s study on college football games and crime. The original paper examines whether college football games are associated with increases in crime in host communities. Our replication focuses on daily assault and vandalism counts from NIBRS between 2000 and 2005 and matches them to college football schedules for the schools included in the original paper.
 
-1. Start by reading the paper. Focus on:
-    * The data section: how they matched FBI's National Incident-Based Reporting System (NIBRS) offense data to 26 Division I-A (now called "FBS") college football programs (2000–2005)
-    * Table 3: the main regression results (home game effect on each crime type)
-    * Table 4 (optional/stretch): whether wins vs. losses matter
+## Project Structure
 
-2. You'll need three data sources:
+```text
+sports-crime-2026-group-6/
+│
+├── data/
+│   ├── nibrs/
+│   │   ├── nibrs_offense_segment_2000.csv
+│   │   ├── nibrs_offense_segment_2001.csv
+│   │   ├── nibrs_offense_segment_2002.csv
+│   │   ├── nibrs_offense_segment_2003.csv
+│   │   ├── nibrs_offense_segment_2004.csv
+│   │   ├── nibrs_offense_segment_2005.csv
+│   │   └── nibrs_batch_header_1991_2024.csv
+│   │
+│   └── processed/
+│       ├── crime_daily.csv
+│       ├── football_games.csv
+│       ├── team_agency_candidates.csv
+│       ├── team_agency_mapping.csv
+│       └── analysis_data.csv
+│
+├── scripts/
+│   ├── 01_get_schedules.R
+│   ├── 02_filter_nibrs.R
+│   ├── 03_team_agency_mapping.R
+│   └── 04_create_analysis_data.R
+│
+├── results.Rmd
+├── results.html
+└── README.md
+```
 
-    **Crime data:** The NIBRS data, cleaned by Jacob Kaplan and available from [openICPSR](https://doi.org/10.3886/E118281V11) (free account required). Download the **offense segment CSV** zip file (one CSV per year). You'll need years 2000–2005. Also download the **batch header CSV** — this small file maps each agency's ORI code to its city name and state.
+## Scripts
 
-    **College football schedules:** One option is the `cfbfastR` R package that provides college football game schedules via ESPN (should not require an API key).
+### `01_get_schedules.R`
 
-    **Team-to-agency mapping:** You'll need to figure out which NIBRS agency (identified by its "ORI code") corresponds to which college football town. Use the batch header file to look up the ORI for the city police department in each college town. Rees & Schnepel list their agencies in a footnote. Note that you'll also need to reconcile how team/city names appear in the NIBRS data vs. how they appear in the football schedule data — they won't always match exactly.
+Downloads college football game schedules for the years 2000–2005 using the `cfbfastR` package. The script keeps the game date, home team, away team, home score, away score, and whether the home team won. The output is saved as:
 
-3. Write scripts to extract and process the data, following the template for the [ngrams assignment](../../week3/ngrams). The URLs for the NIBRS data won't be accessible via `curl` or `wget` commands without a login, so you can instead just document the most direct URL to the files that you use. The NIBRS offense segment csv files are large. You might use command-line tools to extract specific ORIs from the zip without loading everything into R, or do the filtering one file at a time in R. It's up to you, just make sure you have reproducible code for it.
+```text
+data/processed/football_games.csv
+```
 
-4. Replicate the core analysis:
+### `02_filter_nibrs.R`
 
-    **Descriptive statistics:** Reproduce Appendix Table 1 from the paper: compute the mean, standard deviation, and quartiles of daily assault and vandalism counts across your sample of college town agencies. Also reproduce Table 2 (distribution of games by day of week).
+Processes the NIBRS offense segment files for 2000–2005. The script filters the offense data to assault and vandalism offenses, aggregates them to daily counts by ORI and date, and saves the cleaned crime dataset as:
 
-    **Descriptive figures:** Create figures showing the mean number of offenses on Saturdays (with standard errors), broken out by whether a home game, away game, or no game was played. Start with assaults and vandalism (the other offense types in the paper — DUI, disorderly conduct, liquor law violations — can be a stretch goal).
+```text
+data/processed/crime_daily.csv
+```
 
-    **Per-team plot:** Show the same comparison separately for each college town / team instead of aggregated across all teams.
+### `03_team_agency_mapping.R`
 
-    **Regression (Table 3):** Estimate a linear model of daily offense counts on home-game and away-game indicators, controlling for agency fixed effects, day of week, month, and year. (Don't worry about the fancier negative binomial model the authors fit.) Compare your findings to the paper's (+9% assaults and +18% vandalism for home games, with no effect for away games).
+Creates the mapping between the 26 college football teams from Rees and Schnepel’s sample and their corresponding city police agency ORI codes. The script uses the NIBRS batch header file to match city names and state abbreviations to ORI codes. It first saves possible matches and then saves the final team-agency mapping as:
 
-    **Optional (Table 4):** Split home games into wins and losses. Does the outcome matter?
+```text
+data/processed/team_agency_candidates.csv
+data/processed/team_agency_mapping.csv
+```
 
-5. From here, think about extensions to the paper. Could you have approached this problem differently with the same data? Are there other ways to plot the same information? Are there other questions you could ask of the crime or football data that the paper doesn't explore? Each group will probably come up with different questions. Write down the questions your group is interested in along with a plan for how you can tackle them with the data you have.
+### `04_create_analysis_data.R`
 
-6. Do all of your work in your group's project repository:
+Combines the cleaned crime data, football schedules, and team-agency mapping into the final analysis dataset. The script creates one row for each team-day from 2000–2005 and adds indicators for home games, away games, game outcomes, year, month, and day of week. The final dataset is saved as:
 
-    * https://github.com/msr-ds3/sports-crime-2026-group-1
-    * https://github.com/msr-ds3/sports-crime-2026-group-2
-    * https://github.com/msr-ds3/sports-crime-2026-group-3
-    * https://github.com/msr-ds3/sports-crime-2026-group-4
-    * https://github.com/msr-ds3/sports-crime-2026-group-5
-    * https://github.com/msr-ds3/sports-crime-2026-group-6
+```text
+data/processed/analysis_data.csv
+```
 
-7. Write one Rmarkdown notebook file that contains all of your results, including the replications and your extensions. Commit the source code and rendered notebook to your group's Github repository, with a README that explains what each file does.
+## Results Notebook
+
+### `results.Rmd`
+
+This R Markdown notebook contains the main replication results and extension analysis. It includes:
+
+* Appendix Table 1 descriptive statistics for assaults and vandalism
+* Table 2 distribution of game days by day of week
+* Descriptive figures comparing Saturday crime levels across home games, away games, and no-game days
+* Per-team plots comparing crime levels by game type
+* Regression models estimating the relationship between football games and crime
+* An extension examining whether home wins and home losses are associated with different crime levels
+
+The rendered notebook is saved as:
+
+```text
+results.html
+```
+
+## Data Sources
+
+The crime data come from NIBRS offense segment files cleaned by Jacob Kaplan and made available through openICPSR. The batch header file is used to identify agency ORI codes and match them to cities and states.
+
+College football schedule data were collected using the `cfbfastR` package, which provides game-level college football data.
+
+## Extension
+
+For our extension, we examine whether the outcome of a home football game matters. We compare crime levels after home wins versus home losses and estimate regressions controlling for agency, month, and year fixed effects. This allows us to test whether the final result of a game is associated with changes in assault or vandalism levels.
+
+## Notes
+
+The replication may not exactly match the original paper because the cleaned NIBRS data source and agency reporting coverage may differ from the data used by Rees and Schnepel. Some agencies also had incomplete or unusual reporting patterns, so our results should be interpreted as a close replication rather than an exact reproduction.
