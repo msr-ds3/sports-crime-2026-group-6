@@ -1,14 +1,5 @@
 library(tidyverse)
 
-years <- 2000:2005
-dates_2000 <- seq.Date(as.Date("2000/08/20"), as.Date("2000/12/10"), by = "day")
-dates_2001 <- seq.Date(as.Date("2001/08/20"), as.Date("2001/12/10"), by = "day")
-dates_2002 <- seq.Date(as.Date("2002/08/20"), as.Date("2002/12/10"), by = "day")
-dates_2003 <- seq.Date(as.Date("2003/08/20"), as.Date("2003/12/10"), by = "day")
-dates_2004 <- seq.Date(as.Date("2004/08/20"), as.Date("2004/12/10"), by = "day")
-dates_2005 <- seq.Date(as.Date("2005/08/20"), as.Date("2005/12/10"), by = "day")
-all_dates <- data.frame(dates_2000, dates_2001, dates_2002, dates_2003, dates_2004, dates_2005)
-
 dir.create("data/processed", showWarnings = FALSE)
 
 for (yr in years) {
@@ -55,8 +46,7 @@ crime_daily_wide <- crime_daily %>%
     names_from = crime_type,
     values_from = n,
     values_fill = 0
-  )
-
-_join(crime_daily_wide, all_dates)
+  ) %>%
+  filter(incident_date %in% all_dates)
 
 write_csv(crime_daily_wide, "data/processed/crime_daily.csv")

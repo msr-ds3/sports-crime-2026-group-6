@@ -437,7 +437,7 @@ that home victories and home losses are associated with similar crime levels. Th
 
 # Conclusion
 
-In this project, we replicated key findings from Rees and Schnepel (2010) using NIBRS crime data and college football schedules from 2000–2005. We constructed a panel of 26 college towns 
+In this project, we replicated key findings from Rees and Schnepel (2010) using NIBRS crime data and college football schedules from 2000–2005. We constructed a panel of 25 college towns 
 and examined how daily assault and vandalism counts varied depending on whether a football game was being played.
 
 Our descriptive statistics and figures showed that both assaults and vandalism tended to be higher on home game days than on days without games, providing evidence consistent with the original study. 

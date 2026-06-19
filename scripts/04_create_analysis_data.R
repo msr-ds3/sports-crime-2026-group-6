@@ -55,18 +55,22 @@ all_days_with_crimes <- left_join(all_days_and_oris, crime_daily, by = c("ori", 
   arrange(ori) %>%
   replace_na(replace = list(vandalism = 0, assault = 0))
 
-analysis_data <- all_days %>%
-  left_join(games_team_day, by = c("ori", "date" = "incident_date")) %>%
-  left_join(games_team_day, by = c("team", "ori", "date")) %>%
+analysis_data <-
+  left_join(all_days_with_crimes, games_team_day, by = c("all_dates" = "date", "ori")) %>%
   mutate(
     assault = replace_na(assault, 0),
     vandalism = replace_na(vandalism, 0),
     home_game = replace_na(home_game, 0),
     away_game = replace_na(away_game, 0),
     no_game = 1 - (home_game + away_game),
+    date = all_dates,
     year = year(date),
     month = month(date),
     day_of_week = wday(date, label = TRUE)
-  ) 
-
+  ) %>%
+  left_join(team_agency, by = "ori") %>%
+  mutate(team = team.y) %>%
+  filter(team != "Texas Tech") %>%  
+  select(ori, date, vandalism, assault, home_game, away_game, no_game, home_win, year, month, day_of_week, team)
+  
   write_csv(analysis_data, "data/processed/analysis_data.csv")

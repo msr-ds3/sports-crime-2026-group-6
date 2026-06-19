@@ -1,5 +1,5 @@
-data/processed/football_games.csv: scripts/01_get_schedules.R
-	Rscript scripts/01_get_schedules.R
+data/processed/football_games.csv: ./scripts/01_get_schedules.R
+	Rscript ./scripts/01_get_schedules.R
 
 data/processed/crime_daily.csv \
 data/processed/crimes_2000.csv \
