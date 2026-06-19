@@ -40,14 +40,18 @@ games_team_day <- bind_rows(home_games, away_games) %>%
   )
 
 years <- 2000:2005
-dates_2000 <- seq.Date(as.Date("2000/08/20"), as.Date("2000/12/10"), by = "day")
-dates_2001 <- seq.Date(as.Date("2001/08/20"), as.Date("2001/12/10"), by = "day")
-dates_2002 <- seq.Date(as.Date("2002/08/20"), as.Date("2002/12/10"), by = "day")
-dates_2003 <- seq.Date(as.Date("2003/08/20"), as.Date("2003/12/10"), by = "day")
-dates_2004 <- seq.Date(as.Date("2004/08/20"), as.Date("2004/12/10"), by = "day")
-dates_2005 <- seq.Date(as.Date("2005/08/20"), as.Date("2005/12/10"), by = "day")
-all_dates <- c(dates_2000, dates_2001, dates_2002, dates_2003, dates_2004, dates_2005)
 
+all_dates <- map(
+  years,
+  ~ seq.Date(
+      as.Date(paste0(.x, "-08-20")),
+      as.Date(paste0(.x, "-12-10")),
+      by = "day"
+    )
+) %>%
+  unlist() %>%
+  as.Date(origin = "1970-01-01")
+  
 all_dates_df <- data.frame(all_dates)
 oris <- select(team_agency, ori)
 all_days_and_oris <- cross_join(oris, all_dates_df)
