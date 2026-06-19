@@ -74,7 +74,7 @@ analysis_data <-
   ) %>%
   left_join(team_agency, by = "ori") %>%
   mutate(team = team.y) %>%
-  filter(team != "Texas Tech") %>%  
+  filter(team != "Texas Tech") %>% #Missing data for Texas Tech, so exclude it from the data
   select(ori, date, vandalism, assault, home_game, away_game, no_game, home_win, year, month, day_of_week, team)
   
-  write_csv(analysis_data, "data/processed/analysis_data.csv")
+write_csv(analysis_data, "data/processed/analysis_data.csv")
